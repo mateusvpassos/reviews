@@ -28,7 +28,7 @@ public class Category implements Serializable {
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant updatedAt;
 
-    @ManyToMany(mappedBy = "subjects")
+    @ManyToMany(mappedBy = "categories")
     Set<Subject> subjects = new HashSet<>();
 
     @PrePersist

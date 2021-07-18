@@ -10,7 +10,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -25,12 +27,15 @@ public class Review implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String description;
     private Short rate;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant createdAt;
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant updatedAt;
 
-    @ManyToMany(mappedBy = "subjects")
+    @ManyToMany(mappedBy = "reviews")
     Set<Subject> subjects = new HashSet<>();
 
     @PrePersist
@@ -65,6 +70,10 @@ public class Review implements Serializable {
         return rate;
     }
 
+    public User getUser() {
+        return user;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -87,6 +96,10 @@ public class Review implements Serializable {
 
     public Set<Subject> getSubjects() {
         return subjects;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
