@@ -1,0 +1,21 @@
+spring:
+    jpa:
+        properties:
+            javax:
+                persistence:
+                    schema-generation:
+                        create-source: metadata
+                        scripts:
+                            action: create
+                            create-target: create.sql
+            hibernate:
+                ddl-auto: none
+                hbm2ddl:
+                    delimiter: ;
+                jdbc:
+                    lob:
+                        non_contextual_creation: true
+    datasource:
+        url: jdbc:postgresql://localhost:5432/reviews
+        username: postgres
+        password: root
