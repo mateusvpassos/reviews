@@ -22,9 +22,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Autowired
     private JwtTokenStore tokenStore;
 
-    private static final String[] PUBLIC = { "/oauth/token", "/h2-console/**" };
-    private static final String[] OPERATOR_OR_ADMIN = { "/products/**", "/categories/**" };
-    private static final String[] ADMIN = { "/users/**" };
+    private static final String[] PUBLIC_ALL = { "/oauth/token", "/h2-console/**" };
+    private static final String[] OPERATOR_OR_ADMIN_GET_PUT_POST = { "/reviews/**" };
+    private static final String[] OPERATOR_OR_ADMIN_GET = { "/categories/**", "/subjects/**" };
+    private static final String[] ADMIN_ALL = { "/users/**", "/subjects/**", "/reviews/**", "/categories/**" };
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
@@ -37,9 +38,13 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         if (Arrays.asList(env.getActiveProfiles()).contains("test")) {
             http.headers().frameOptions().disable();
         }
-        http.authorizeRequests().antMatchers(PUBLIC).permitAll().antMatchers(HttpMethod.GET, OPERATOR_OR_ADMIN)
-                .permitAll().antMatchers(OPERATOR_OR_ADMIN).hasAnyRole("OPERATOR", "ADMIN").antMatchers(ADMIN)
-                .hasRole("ADMIN").anyRequest().authenticated();
+        http.authorizeRequests()
+            .antMatchers(PUBLIC_ALL).permitAll()
+            .antMatchers(HttpMethod.GET, OPERATOR_OR_ADMIN_GET_PUT_POST).hasAnyRole("OPERATOR", "ADMIN")
+            .antMatchers(HttpMethod.PUT, OPERATOR_OR_ADMIN_GET_PUT_POST).hasAnyRole("OPERATOR", "ADMIN")
+            .antMatchers(HttpMethod.POST, OPERATOR_OR_ADMIN_GET_PUT_POST).hasAnyRole("OPERATOR", "ADMIN")
+            .antMatchers(HttpMethod.GET, OPERATOR_OR_ADMIN_GET).hasAnyRole("OPERATOR", "ADMIN")
+            .antMatchers(ADMIN_ALL).hasRole("ADMIN").anyRequest().authenticated();
     }
 
 }
