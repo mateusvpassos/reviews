@@ -34,7 +34,7 @@ public class UserResource {
     public ResponseEntity<Page<UserDTO>> findAll(@RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "12") Integer size,
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-            @RequestParam(value = "sort", defaultValue = "name") String sort) {
+            @RequestParam(value = "sort", defaultValue = "firstName") String sort) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Direction.valueOf(direction), sort);
         Page<UserDTO> list = userService.findAllPaged(pageRequest);

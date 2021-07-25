@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ReviewsApplication<reviews>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.mateus.reviews.ReviewsApplication",
+            "projectName": "reviews",
+            "args": ""
+        }
+    ]
+}

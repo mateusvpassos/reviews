@@ -9,7 +9,7 @@ public class ReviewDTO implements Serializable {
     private Long id;
     private String description;
     private Short rate;
-    private User user;
+    private UserDTO user;
 
     public ReviewDTO() {
     }
@@ -19,14 +19,14 @@ public class ReviewDTO implements Serializable {
         this.id = id;
         this.description = description;
         this.rate = rate;
-        this.user = user;
+        this.user = new UserDTO(user);
     }
 
     public ReviewDTO(Review entity) {
         id = entity.getId();
         description = entity.getDescription();
         rate = entity.getRate();
-        user = entity.getUser();
+        user = new UserDTO(entity.getUser());
     }
 
     public Long getId() {
@@ -41,7 +41,7 @@ public class ReviewDTO implements Serializable {
         return rate;
     }
 
-    public User getUser() {
+    public UserDTO getUser() {
         return user;
     }
 
@@ -57,7 +57,7 @@ public class ReviewDTO implements Serializable {
         this.rate = rate;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserDTO user) {
         this.user = user;
     }
 }
