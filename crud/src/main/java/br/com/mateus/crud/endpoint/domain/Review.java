@@ -11,8 +11,11 @@ public class Review implements Serializable {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-
     private User user;
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private Subject subject;
 
     @Column(nullable = false, length = 500)
     private String description;
@@ -20,8 +23,9 @@ public class Review implements Serializable {
     @Column(length = 1)
     private Short rate;
 
-    public Review(User user, String description, Short rate){
+    public Review(User user, Subject subject, String description, Short rate){
         this.user = user;
+        this.subject = subject;
         this.description = description;
         this.rate = rate;
     }
@@ -34,6 +38,7 @@ public class Review implements Serializable {
     public User getUser() {
         return user;
     }
+    public Subject getSubject() { return subject; }
     public Short getRate() {
         return rate;
     }
