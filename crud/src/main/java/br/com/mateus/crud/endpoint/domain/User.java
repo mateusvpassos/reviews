@@ -9,12 +9,13 @@ import java.io.Serializable;
 public class User implements Serializable {
 
     @Id
+    @Column(nullable = false, unique = true, length = 20)
     private String id;
 
     @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique = true)
     private String email;
 
     @Column(nullable = false, length = 100)
