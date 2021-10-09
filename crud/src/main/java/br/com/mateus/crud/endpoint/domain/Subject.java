@@ -6,7 +6,7 @@ import java.io.Serializable;
 @Entity
 public class Subject implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 100)
@@ -30,5 +30,11 @@ public class Subject implements Serializable {
     }
     public String getDescription() {
         return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

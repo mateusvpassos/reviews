@@ -6,7 +6,7 @@ import java.io.Serializable;
 @Entity
 public class Review implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -44,5 +44,17 @@ public class Review implements Serializable {
     }
     public String getDescription() {
         return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public void setRate(Short rate) {
+        this.rate = rate;
+    }
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+    public void setUser(User user) {
+        this.user = user;
     }
 }
