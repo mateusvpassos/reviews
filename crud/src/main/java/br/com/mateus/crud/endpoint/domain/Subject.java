@@ -15,6 +15,12 @@ public class Subject implements Serializable {
     @Column(nullable = false, length = 255)
     private String description;
 
+    public Subject(Long id, String title, String description){
+        this.id = id;
+        this.title = title;
+        this.description = description;
+    }
+
     public Subject(String title, String description){
         this.title = title;
         this.description = description;
