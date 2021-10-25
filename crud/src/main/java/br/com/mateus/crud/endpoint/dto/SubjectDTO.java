@@ -2,11 +2,15 @@ package br.com.mateus.crud.endpoint.dto;
 
 import br.com.mateus.crud.endpoint.domain.Subject;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 public class SubjectDTO implements Serializable {
+    @NotBlank
     private Long id;
+    @NotBlank
     private String title;
+    @NotBlank
     private String description;
 
     public SubjectDTO(Long id, String title, String description){

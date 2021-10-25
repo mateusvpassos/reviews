@@ -4,13 +4,17 @@ import br.com.mateus.crud.endpoint.domain.Review;
 import br.com.mateus.crud.endpoint.domain.Subject;
 import br.com.mateus.crud.endpoint.domain.User;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 public class ReviewDTO implements Serializable {
+    @NotBlank
     private Long id;
     private User user;
     private Subject subject;
+    @NotBlank
     private String description;
+    @NotBlank
     private Short rate;
 
     public ReviewDTO(Long id, User user, Subject subject, String description, Short rate){

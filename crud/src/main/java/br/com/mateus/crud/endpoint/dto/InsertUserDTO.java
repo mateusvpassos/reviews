@@ -2,8 +2,11 @@ package br.com.mateus.crud.endpoint.dto;
 
 import br.com.mateus.crud.endpoint.domain.User;
 
+import javax.validation.constraints.NotBlank;
+
 public class InsertUserDTO extends UserDTO{
 
+    @NotBlank
     private String password;
 
     public InsertUserDTO(String id, String name, String email) {
