@@ -118,27 +118,10 @@ public class UserRepositoryTest {
         assertEquals(exception.getClass(), DataIntegrityViolationException.class);
     }
 
-    private User createObject(){
-        return new User("12345678901", "JpaTestOne", "test@testone.com", "pass");
-    }
-
-    private User createObjectUpdate(){ return new User("12345678901", "JpaTestTwo", "update@testone.com", "passUpdate");}
-
+    private User createObject(){ return new User("12345678901", "JpaTestOne", "test@testone.com", "pass");}
     private User createObjectIgnoringCase(){ return new User("78945612358", "jpatestone", "ignoringcase@test.com", "pass");}
-
-    private User createObjectNullName(){
-        return new User("78945612358", null, "ignoringcase@test.com", "pass");
-    }
-
-    private User createObjectNullEmail(){
-        return new User("78945612358", "JpaTestOne", null, "pass");
-    }
-
-    private User createObjectNullPassword(){
-        return new User("78945612358", "JpaTestOne", "test@testone.com", null);
-    }
-
-    private User createObjectNullId(){
-        return new User(null, "JpaTestOne", "test@testone.com", "pass");
-    }
+    private User createObjectNullName(){ return new User("78945612358", null, "ignoringcase@test.com", "pass");}
+    private User createObjectNullEmail(){ return new User("78945612358", "JpaTestOne", null, "pass");}
+    private User createObjectNullPassword(){ return new User("78945612358", "JpaTestOne", "test@testone.com", null);}
+    private User createObjectNullId(){ return new User(null, "JpaTestOne", "test@testone.com", "pass");}
 }

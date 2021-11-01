@@ -1,8 +1,6 @@
 package br.com.mateus.crud.endpoint.service;
 
 import br.com.mateus.crud.endpoint.domain.User;
-import br.com.mateus.crud.endpoint.dto.InsertUserDTO;
-import br.com.mateus.crud.endpoint.dto.UpdateUserDTO;
 import br.com.mateus.crud.endpoint.dto.UserDTO;
 import br.com.mateus.crud.endpoint.repository.UserRepository;
 import br.com.mateus.crud.endpoint.service.exception.DatabaseException;
@@ -18,7 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,39 +38,36 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserDTO> listUsers() {
+    public List<UserDTO> findAll() {
         List<User> list = userRepository.findAll();
         return list.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> listUsersPaged(PageRequest pageRequest) {
+    public Page<UserDTO> findAllPaged(PageRequest pageRequest) {
         Page<User> list = userRepository.findAll(pageRequest);
         return list.map(x -> new UserDTO(x));
     }
 
     @Transactional
-    public UserDTO insert(InsertUserDTO userDto) {
+    public UserDTO saveUser(UserDTO userDto) {
         User user = new User();
-        copyDtoToEntity(userDto, user);
-        user = userRepository.save(user);
+        user = copyDtoToEntity(userDto, user);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user = userRepository.save(user);
         return new UserDTO(user);
     }
 
     @Transactional
-    public UserDTO update(String id, UpdateUserDTO userDto) {
-        try {
-            User user = userRepository.getById(id);
-            copyDtoToEntity(userDto, user);
-            user = userRepository.save(user);
-            return new UserDTO(user);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("ID Not Found: " + id);
-        }
+    public UserDTO mergeUser(UserDTO userDto) {
+        User user = new User();
+        user = copyDtoToEntity(userDto, user);
+        user = userRepository.save(user);
+        return new UserDTO(user);
     }
 
-    public void delete(String id) {
+    @Transactional
+    public void deleteUser(String id) {
         try {
             userRepository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
@@ -84,9 +78,11 @@ public class UserService {
 
     }
 
-    private void copyDtoToEntity(UserDTO dto, User user) {
+    private User copyDtoToEntity(UserDTO dto, User user) {
+        user.setId(dto.getId());
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
+        return user;
     }
 
 }

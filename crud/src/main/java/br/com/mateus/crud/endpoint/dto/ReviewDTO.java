@@ -18,7 +18,6 @@ public class ReviewDTO implements Serializable {
     private Short rate;
 
     public ReviewDTO(Long id, User user, Subject subject, String description, Short rate){
-        super();
         this.id = id;
         this.user = user;
         this.subject = subject;
