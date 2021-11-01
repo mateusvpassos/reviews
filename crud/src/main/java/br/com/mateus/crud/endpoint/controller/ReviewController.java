@@ -32,7 +32,7 @@ public class ReviewController {
     public ResponseEntity<Page<ReviewDTO>> findAll(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                                  @RequestParam(value = "size", defaultValue = "12") Integer size,
                                                  @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-                                                 @RequestParam(value = "sort", defaultValue = "name") String sort) {
+                                                 @RequestParam(value = "sort", defaultValue = "id") String sort) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.valueOf(direction), sort);
         Page<ReviewDTO> list = reviewService.findAllPaged(pageRequest);
