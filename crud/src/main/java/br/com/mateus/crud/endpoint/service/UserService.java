@@ -28,7 +28,7 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
-    private BCryptPasswordEncoder passwordEncoder;
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional(readOnly = true)
     public UserDTO findUser(String id) {
