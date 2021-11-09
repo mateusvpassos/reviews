@@ -10,24 +10,35 @@ import br.com.mateus.crud.endpoint.service.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.jpa.JpaSystemException;
 
 import br.com.mateus.crud.endpoint.dto.UserDTO;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
+import java.util.Optional;
+
 @ExtendWith(SpringExtension.class)
 public class UserServiceTest {
     private String existingId;
+    private String nonExistingId;
+    private User user = createObject();
+    private User userUpdate = createObjectUpdate();
 
     @BeforeEach
-    void setUp() throws Exception{
+    void setUp() {
         existingId = "00000000000";
+        nonExistingId = "00";
+
+        Mockito.when(userRepository.save(ArgumentMatchers.any())).thenReturn(user);
+        Mockito.when(userRepository.findById(existingId)).thenReturn(Optional.of(createObject()));
+        Mockito.when(userRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+        Mockito.when(userRepository.findAll()).thenReturn(List.of(createObject()));
+
         Mockito.doNothing().when(userRepository).deleteById(existingId);
-        Mockito.doReturn(userRepository.save(createObject())).when(userRepository).save(createObject());
     }
 
     @Mock
@@ -37,14 +48,13 @@ public class UserServiceTest {
 
     @Test
     public void createShouldCreateData(){
-        UserDTO user = new UserDTO(createObject());
-        user = userService.saveUser(user);
+        UserDTO userDto = new UserDTO(user);
+        userDto = userService.saveUser(userDto);
 
-        assertThat(user.getId()).isNotNull();
-        assertThat(user.getName()).isEqualTo("MockitoTestOne");
-        assertThat(user.getEmail()).isEqualTo("test@testone.com");
+        assertThat(userDto.getId()).isNotNull();
+        assertThat(userDto.getName()).isEqualTo("MockitoTestOne");
+        assertThat(userDto.getEmail()).isEqualTo("test@testone.com");
 
-        Mockito.verify(userRepository).save(createObject());
     }
 
     @Test
@@ -52,63 +62,34 @@ public class UserServiceTest {
         userService.deleteUser(existingId);
         Exception exception = assertThrows(
                 ResourceNotFoundException.class,
-                () -> userService.findUser(existingId));
+                () -> userService.findUser(nonExistingId));
         assertEquals(exception.getClass(), ResourceNotFoundException.class);
+    }
 
-        Mockito.verify(userRepository).deleteById(existingId);
+    @Test
+    public void findAllShouldListAll(){
+        List<UserDTO> users = userService.findAll();
+        assertThat(users.size()).isEqualTo(1);
     }
 
     @Test
     public void updateShouldChangeAndPersistData(){
-        UserDTO user = new UserDTO(createObject());
+        Mockito.when(userRepository.save(ArgumentMatchers.any())).thenReturn(userUpdate);
+        Mockito.when(userRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(createObjectUpdate()));
 
-        user = userService.saveUser(user);
-        user.setName("MockitoTestTwo");
-        user.setEmail("update@testone.com");
-        userService.mergeUser(user);
+        UserDTO userDTO = new UserDTO(createObjectUpdate());
 
-        UserDTO result = userService.findUser(user.getId());
+        userDTO = userService.saveUser(userDTO);
+        userDTO.setName("MockitoTestTwo");
+        userDTO.setEmail("update@testone.com");
+        userService.mergeUser(userDTO);
+
+        UserDTO result = userService.findUser(userDTO.getId());
 
         assertThat(result.getName()).isEqualTo("MockitoTestTwo");
         assertThat(result.getEmail()).isEqualTo("update@testone.com");
     }
 
-    @Test
-    public void createWhenIdIsNullShouldThrowException(){
-        Exception exception = assertThrows(
-                JpaSystemException.class,
-                () -> userService.mergeUser(new UserDTO(createObjectNullId())));
-
-        assertEquals(exception.getClass(), JpaSystemException.class);
-    }
-
-    @Test
-    public void createWhenNameIsNullShouldThrowException(){
-        Exception exception = assertThrows(
-                DataIntegrityViolationException.class,
-                () -> userService.mergeUser(new UserDTO(createObjectNullName())));
-
-        assertEquals(exception.getClass(), DataIntegrityViolationException.class);
-    }
-
-    @Test
-    public void createWhenEmailIsNullShouldThrowException(){
-        Exception exception = assertThrows(
-                DataIntegrityViolationException.class,
-                () -> userService.mergeUser(new UserDTO(createObjectNullEmail())));
-
-        assertEquals(exception.getClass(), DataIntegrityViolationException.class);
-    }
-
     private User createObject(){ return new User("12345678901", "MockitoTestOne", "test@testone.com", "pass");}
-    private User createObjectNullName(){
-        return new User("78945612358", null, "ignoringcase@test.com", "pass");
-    }
-    private User createObjectNullEmail(){
-        return new User("78945612358", "MockitoTestOne", null, "pass");
-    }
-    private User createObjectNullId(){
-        return new User(null, "MockitoTestOne", "test@testone.com", "pass");
-    }
-    private User createObjectNullPassword(){ return new User(null, "MockitoTestOne", "test@testone.com", null); }
+    private User createObjectUpdate(){ return new User("12345678901", "MockitoTestTwo", "update@testone.com", "pass");}
 }

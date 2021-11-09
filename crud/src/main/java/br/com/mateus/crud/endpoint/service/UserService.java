@@ -26,7 +26,7 @@ public class UserService {
     private static Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 

@@ -1,85 +1,93 @@
 package br.com.mateus.crud.endpoint.service;
 
+import br.com.mateus.crud.endpoint.domain.Subject;
 import br.com.mateus.crud.endpoint.dto.SubjectDTO;
+import br.com.mateus.crud.endpoint.repository.SubjectRepository;
+import br.com.mateus.crud.endpoint.service.exception.ResourceNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.jpa.JpaSystemException;
+import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SubjectServiceTest {
-    @Autowired
+
+    private Long existingId;
+    private Long nonExistingId;
+    private Subject subject = createObject();
+    private Subject subjectUpdate = createObjectUpdate();
+
+    @BeforeEach
+    void setUp() {
+        existingId = 1L;
+        nonExistingId = 0L;
+
+        Mockito.when(subjectRepository.save(ArgumentMatchers.any())).thenReturn(subject);
+        Mockito.when(subjectRepository.findById(existingId)).thenReturn(Optional.of(createObject()));
+        Mockito.when(subjectRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+        Mockito.when(subjectRepository.findAll()).thenReturn(List.of(createObject()));
+
+        Mockito.doNothing().when(subjectRepository).deleteById(existingId);
+    }
+
+    @Mock
+    private SubjectRepository subjectRepository;
+    @InjectMocks
     private SubjectService subjectService;
 
     @Test
     public void createShouldCreateData(){
-        SubjectDTO subject = createObject();
-        subjectService.saveSubject(subject);
+        SubjectDTO subjectDto = new SubjectDTO(subject);
+        subjectDto = subjectService.saveSubject(subjectDto);
 
-        assertThat(subject.getId()).isNotNull();
-        assertThat(subject.getTitle()).isEqualTo("MockitoTestOne");
-        assertThat(subject.getDescription()).isEqualTo("test@testone.com");
+        //assertThat(subjectDto.getId()).isNotNull();
+        assertThat(subjectDto.getTitle()).isEqualTo("MockitoTestOne");
+        assertThat(subjectDto.getDescription()).isEqualTo("Description");
+
     }
 
     @Test
     public void deleteShouldRemoveData(){
-        SubjectDTO subject = createObject();
-        subjectService.saveSubject(subject);
-        subjectService.deleteSubject(subject.getId());
+        subjectService.deleteSubject(existingId);
+        Exception exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> subjectService.findSubject(nonExistingId));
+        assertEquals(exception.getClass(), ResourceNotFoundException.class);
+    }
 
-        assertThat(subjectService.findSubject(subject.getId())).isNull();
+    @Test
+    public void findAllShouldListAll(){
+        List<SubjectDTO> subjects = subjectService.findAll();
+        assertThat(subjects.size()).isEqualTo(1);
     }
 
     @Test
     public void updateShouldChangeAndPersistData(){
-        SubjectDTO subject = createObject();
+        Mockito.when(subjectRepository.save(ArgumentMatchers.any())).thenReturn(subjectUpdate);
+        Mockito.when(subjectRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(createObjectUpdate()));
 
-        subject = subjectService.saveSubject(subject);
-        subject.setTitle("MockitoTestTwo");
-        subject.setDescription("Desc");
-        subjectService.mergeSubject(subject);
+        SubjectDTO subjectDTO = new SubjectDTO(createObjectUpdate());
 
-        SubjectDTO result = subjectService.findSubject(subject.getId());
+        subjectDTO = subjectService.saveSubject(subjectDTO);
+        subjectDTO.setTitle("MockitoTestTwo");
+        subjectDTO.setDescription("Update Description");
+        subjectService.mergeSubject(subjectDTO);
+
+        SubjectDTO result = subjectService.findSubject(subjectDTO.getId());
 
         assertThat(result.getTitle()).isEqualTo("MockitoTestTwo");
-        assertThat(result.getDescription()).isEqualTo("Desc");
+        assertThat(result.getDescription()).isEqualTo("Update Description");
     }
 
-    @Test
-    public void createWhenIdIsNullShouldThrowException(){
-        Exception exception = assertThrows(
-                JpaSystemException.class,
-                () -> subjectService.mergeSubject(createObjectNullId()));
+    private Subject createObject(){ return new Subject(4L, "MockitoTestOne", "Description");}
+    private Subject createObjectUpdate(){ return new Subject(4L, "MockitoTestTwo", "Update Description");}
 
-        assertEquals(exception.getClass(), JpaSystemException.class);
-    }
-
-    @Test
-    public void createWhenDescriptionIsNullShouldThrowException(){
-        Exception exception = assertThrows(
-                DataIntegrityViolationException.class,
-                () -> subjectService.mergeSubject(createObjectNullDescription()));
-
-        assertEquals(exception.getClass(), DataIntegrityViolationException.class);
-    }
-
-
-    private SubjectDTO createObject(){
-        return new SubjectDTO(1005L, "MockitoTestOne", "Description");
-    }
-
-    private SubjectDTO createObjectNullTitle(){
-        return new SubjectDTO(1005L, null, "Description");
-    }
-
-    private SubjectDTO createObjectNullDescription(){
-        return new SubjectDTO(1005L, "MockitoTestOne", null);
-    }
-
-    private SubjectDTO createObjectNullId(){
-        return new SubjectDTO(null, "MockitoTestOne", "Description");
-    }
 }

@@ -41,4 +41,9 @@ public class ReviewDTO implements Serializable {
     public Short getRate() {
         return rate;
     }
+    public void setDescription(String description) { this.description = description; }
+    public void setId(Long id) { this.id = id; }
+    public void setRate(Short rate) { this.rate = rate; }
+    public void setSubject(Subject subject) { this.subject = subject; }
+    public void setUser(User user) { this.user = user; }
 }
