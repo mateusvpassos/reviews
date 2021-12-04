@@ -3,8 +3,8 @@ package br.com.mateus.crud.endpoint.service;
 import br.com.mateus.crud.endpoint.domain.User;
 import br.com.mateus.crud.endpoint.dto.UserDTO;
 import br.com.mateus.crud.endpoint.repository.UserRepository;
-import br.com.mateus.crud.endpoint.service.exception.DatabaseException;
-import br.com.mateus.crud.endpoint.service.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.exception.DatabaseException;
+import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +50,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO saveUser(UserDTO userDto) {
+    public String saveUser(UserDTO userDto) {
         User user = new User();
         user = copyDtoToEntity(userDto, user);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user = userRepository.save(user);
-        return new UserDTO(user);
+        return user.getId();
     }
 
     @Transactional

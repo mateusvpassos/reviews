@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.mateus.crud.endpoint.domain.Subject;
 import br.com.mateus.crud.endpoint.dto.SubjectDTO;
 import br.com.mateus.crud.endpoint.repository.SubjectRepository;
-import br.com.mateus.crud.endpoint.service.exception.DatabaseException;
-import br.com.mateus.crud.endpoint.service.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.exception.DatabaseException;
+import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
 
 @Service
 public class SubjectService {
@@ -48,11 +48,11 @@ public class SubjectService {
     }
 
     @Transactional
-    public SubjectDTO saveSubject(SubjectDTO subjectDto) {
+    public Long saveSubject(SubjectDTO subjectDto) {
         Subject subject = new Subject();
         subject = copyDtoToEntity(subjectDto, subject);
         subject = subjectRepository.save(subject);
-        return new SubjectDTO(subject);
+        return subject.getId();
     }
 
     @Transactional

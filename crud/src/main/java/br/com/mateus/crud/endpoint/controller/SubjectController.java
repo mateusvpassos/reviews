@@ -40,15 +40,15 @@ public class SubjectController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SubjectDTO> findAll(@PathVariable Long id) {
+    public ResponseEntity<SubjectDTO> findOne(@PathVariable Long id) {
         return ResponseEntity.ok().body(subjectService.findSubject(id));
     }
 
     @PostMapping
-    public ResponseEntity<SubjectDTO> insert(@RequestBody SubjectDTO subjectDto) {
-        SubjectDTO newDto = subjectService.saveSubject(subjectDto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newDto.getId()).toUri();
-        return ResponseEntity.created(uri).body(newDto);
+    public ResponseEntity<Long> insert(@RequestBody SubjectDTO subjectDto) {
+        Long id = subjectService.saveSubject(subjectDto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri();
+        return ResponseEntity.created(uri).body(id);
     }
 
     @PutMapping()

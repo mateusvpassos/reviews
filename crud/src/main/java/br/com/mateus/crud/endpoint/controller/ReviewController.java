@@ -40,15 +40,15 @@ public class ReviewController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReviewDTO> findAll(@PathVariable Long id) {
+    public ResponseEntity<ReviewDTO> findOne(@PathVariable Long id) {
         return ResponseEntity.ok().body(reviewService.findReview(id));
     }
 
     @PostMapping
-    public ResponseEntity<ReviewDTO> insert(@RequestBody ReviewDTO reviewDto) {
-        ReviewDTO newDto = reviewService.saveReview(reviewDto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newDto.getId()).toUri();
-        return ResponseEntity.created(uri).body(newDto);
+    public ResponseEntity<Long> insert(@RequestBody ReviewDTO reviewDto) {
+        Long id = reviewService.saveReview(reviewDto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri();
+        return ResponseEntity.created(uri).body(id);
     }
 
     @PutMapping()

@@ -31,15 +31,15 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> findAll(@PathVariable String id) {
+    public ResponseEntity<UserDTO> findOne(@PathVariable String id) {
         return ResponseEntity.ok().body(userService.findUser(id));
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> insert(@RequestBody UserDTO userDto) {
-        UserDTO newDto = userService.saveUser(userDto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newDto.getId()).toUri();
-        return ResponseEntity.created(uri).body(newDto);
+    public ResponseEntity<String> insert(@RequestBody UserDTO userDto) {
+        String id = userService.saveUser(userDto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri();
+        return ResponseEntity.created(uri).body(id);
     }
 
     @PutMapping()

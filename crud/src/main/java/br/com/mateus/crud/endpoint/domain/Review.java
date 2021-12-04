@@ -31,6 +31,14 @@ public class Review implements Serializable {
         this.rate = rate;
     }
 
+    public Review(Long id, User user, Subject subject, String description, Short rate){
+        this.id = id;
+        this.user = user;
+        this.subject = subject;
+        this.description = description;
+        this.rate = rate;
+    }
+
     public Review() {}
 
     public Long getId() {

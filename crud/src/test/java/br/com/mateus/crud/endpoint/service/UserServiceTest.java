@@ -5,8 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import br.com.mateus.crud.endpoint.domain.User;
+import br.com.mateus.crud.endpoint.exception.DatabaseException;
 import br.com.mateus.crud.endpoint.repository.UserRepository;
-import br.com.mateus.crud.endpoint.service.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import br.com.mateus.crud.endpoint.dto.UserDTO;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
@@ -31,14 +36,13 @@ public class UserServiceTest {
     @BeforeEach
     void setUp() {
         existingId = "00000000000";
-        nonExistingId = "00";
+        nonExistingId = "154156745134";
 
         Mockito.when(userRepository.save(ArgumentMatchers.any())).thenReturn(user);
         Mockito.when(userRepository.findById(existingId)).thenReturn(Optional.of(createObject()));
         Mockito.when(userRepository.findById(nonExistingId)).thenReturn(Optional.empty());
         Mockito.when(userRepository.findAll()).thenReturn(List.of(createObject()));
-
-        Mockito.doNothing().when(userRepository).deleteById(existingId);
+        Mockito.when(userRepository.findAll(PageRequest.of(1, 1))).thenReturn(Page.empty());
     }
 
     @Mock
@@ -49,21 +53,35 @@ public class UserServiceTest {
     @Test
     public void createShouldCreateData(){
         UserDTO userDto = new UserDTO(user);
-        userDto = userService.saveUser(userDto);
+        String id = userService.saveUser(userDto);
 
-        assertThat(userDto.getId()).isNotNull();
-        assertThat(userDto.getName()).isEqualTo("MockitoTestOne");
-        assertThat(userDto.getEmail()).isEqualTo("test@testone.com");
-
+        assertThat(id).isNotNull();
     }
 
     @Test
     public void deleteShouldRemoveData(){
+        Mockito.doNothing().when(userRepository).deleteById(existingId);
         userService.deleteUser(existingId);
+    }
+
+    @Test
+    public void deleteShouldThrowEmptyResultDataAccessException(){
+        EmptyResultDataAccessException exc = new EmptyResultDataAccessException("ID Not Found: " + nonExistingId, 1);
+        Mockito.doThrow(exc).when(userRepository).deleteById(nonExistingId);
         Exception exception = assertThrows(
                 ResourceNotFoundException.class,
-                () -> userService.findUser(nonExistingId));
-        assertEquals(exception.getClass(), ResourceNotFoundException.class);
+                () -> userService.deleteUser(nonExistingId));
+        assertEquals(exception.getMessage(), "ID Not Found: " + nonExistingId);
+    }
+
+    @Test
+    public void deleteShouldThrowDatabaseException(){
+        DataIntegrityViolationException exc = new DataIntegrityViolationException("Integrity Violation");
+        Mockito.doThrow(exc).when(userRepository).deleteById(existingId);
+        Exception exception = assertThrows(
+                DatabaseException.class,
+                () -> userService.deleteUser(existingId));
+        assertEquals(exception.getMessage(), "Integrity Violation");
     }
 
     @Test
@@ -73,18 +91,24 @@ public class UserServiceTest {
     }
 
     @Test
+    public void findAllPagedShouldListAll(){
+        Page<UserDTO> users = userService.findAllPaged(PageRequest.of(1, 1));
+        assertThat(users.getTotalElements()).isEqualTo(0);
+    }
+
+    @Test
     public void updateShouldChangeAndPersistData(){
         Mockito.when(userRepository.save(ArgumentMatchers.any())).thenReturn(userUpdate);
         Mockito.when(userRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(createObjectUpdate()));
 
         UserDTO userDTO = new UserDTO(createObjectUpdate());
 
-        userDTO = userService.saveUser(userDTO);
+        String id = userService.saveUser(userDTO);
         userDTO.setName("MockitoTestTwo");
         userDTO.setEmail("update@testone.com");
         userService.mergeUser(userDTO);
 
-        UserDTO result = userService.findUser(userDTO.getId());
+        UserDTO result = userService.findUser(id);
 
         assertThat(result.getName()).isEqualTo("MockitoTestTwo");
         assertThat(result.getEmail()).isEqualTo("update@testone.com");

@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.mateus.crud.endpoint.domain.Review;
 import br.com.mateus.crud.endpoint.dto.ReviewDTO;
 import br.com.mateus.crud.endpoint.repository.ReviewRepository;
-import br.com.mateus.crud.endpoint.service.exception.DatabaseException;
-import br.com.mateus.crud.endpoint.service.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.exception.DatabaseException;
+import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
 
 @Service
 public class ReviewService {
@@ -48,11 +48,11 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewDTO saveReview(ReviewDTO reviewDto) {
+    public Long saveReview(ReviewDTO reviewDto) {
         Review review = new Review();
         review = copyDtoToEntity(reviewDto, review);
         review = reviewRepository.save(review);
-        return new ReviewDTO(review);
+        return review.getId();
     }
 
     @Transactional

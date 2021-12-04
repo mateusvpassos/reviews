@@ -1,13 +1,10 @@
-package br.com.mateus.crud.endpoint.controller.exception;
+package br.com.mateus.crud.endpoint.exception;
 
-import br.com.mateus.crud.endpoint.service.exception.DatabaseException;
-import br.com.mateus.crud.endpoint.service.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
 

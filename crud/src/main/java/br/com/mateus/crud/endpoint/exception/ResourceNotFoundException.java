@@ -1,4 +1,4 @@
-package br.com.mateus.crud.endpoint.service.exception;
+package br.com.mateus.crud.endpoint.exception;
 
 public class ResourceNotFoundException extends RuntimeException{
 
