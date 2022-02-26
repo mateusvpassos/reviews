@@ -1,6 +1,5 @@
 package br.com.mateus.crud.endpoint.exception;
 
-import aj.org.objectweb.asm.Handle;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
