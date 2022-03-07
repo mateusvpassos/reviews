@@ -1,11 +1,12 @@
 package br.com.mateus.crud.endpoint.service;
 
-import br.com.mateus.crud.endpoint.domain.Review;
-import br.com.mateus.crud.endpoint.dto.ReviewDTO;
-import br.com.mateus.crud.endpoint.dto.SubjectDTO;
-import br.com.mateus.crud.endpoint.exception.DatabaseException;
-import br.com.mateus.crud.endpoint.repository.ReviewRepository;
-import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,15 +20,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import br.com.mateus.crud.endpoint.domain.Review;
+import br.com.mateus.crud.endpoint.dto.ReviewDTO;
+import br.com.mateus.crud.endpoint.exception.DatabaseException;
+import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.repository.ReviewRepository;
 
 @ExtendWith(SpringExtension.class)
 public class ReviewServiceTest {
+
+    @Mock
+    private ReviewRepository reviewRepository;
+    @InjectMocks
+    private ReviewService reviewService;
 
     private Long existingId;
     private Long nonExistingId;
@@ -45,11 +50,6 @@ public class ReviewServiceTest {
         Mockito.when(reviewRepository.findAll()).thenReturn(List.of(createObject()));
         Mockito.when(reviewRepository.findAll(PageRequest.of(1, 1))).thenReturn(Page.empty());
     }
-
-    @Mock
-    private ReviewRepository reviewRepository;
-    @InjectMocks
-    private ReviewService reviewService;
 
     @Test
     public void createShouldCreateData(){
@@ -104,7 +104,6 @@ public class ReviewServiceTest {
 
         ReviewDTO reviewDTO = new ReviewDTO(createObjectUpdate());
 
-        Long id = reviewService.saveReview(reviewDTO);
         reviewDTO.setDescription("MockitoTestTwo");
         reviewService.mergeReview(reviewDTO);
 

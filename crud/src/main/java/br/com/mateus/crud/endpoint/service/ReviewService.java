@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,14 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.mateus.crud.endpoint.domain.Review;
 import br.com.mateus.crud.endpoint.dto.ReviewDTO;
-import br.com.mateus.crud.endpoint.repository.ReviewRepository;
 import br.com.mateus.crud.endpoint.exception.DatabaseException;
 import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.repository.ReviewRepository;
 
 @Service
 public class ReviewService {
-
-    private static Logger logger = LoggerFactory.getLogger(ReviewService.class);
 
     @Autowired
     ReviewRepository reviewRepository;

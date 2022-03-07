@@ -1,12 +1,9 @@
 package br.com.mateus.crud.endpoint.service;
 
-import br.com.mateus.crud.endpoint.domain.User;
-import br.com.mateus.crud.endpoint.dto.UserDTO;
-import br.com.mateus.crud.endpoint.repository.UserRepository;
-import br.com.mateus.crud.endpoint.exception.DatabaseException;
-import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,14 +13,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import br.com.mateus.crud.endpoint.domain.User;
+import br.com.mateus.crud.endpoint.dto.UserDTO;
+import br.com.mateus.crud.endpoint.exception.DatabaseException;
+import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.repository.UserRepository;
 
 @Service
 public class UserService {
-
-    private static Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserRepository userRepository;

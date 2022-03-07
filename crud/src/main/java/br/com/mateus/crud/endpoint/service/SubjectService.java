@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,14 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.mateus.crud.endpoint.domain.Subject;
 import br.com.mateus.crud.endpoint.dto.SubjectDTO;
-import br.com.mateus.crud.endpoint.repository.SubjectRepository;
 import br.com.mateus.crud.endpoint.exception.DatabaseException;
 import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.repository.SubjectRepository;
 
 @Service
 public class SubjectService {
-
-    private static Logger logger = LoggerFactory.getLogger(SubjectService.class);
 
     @Autowired
     SubjectRepository subjectRepository;

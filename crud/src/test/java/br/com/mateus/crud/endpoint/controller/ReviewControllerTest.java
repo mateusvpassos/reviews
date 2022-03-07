@@ -1,10 +1,8 @@
 package br.com.mateus.crud.endpoint.controller;
 
-import br.com.mateus.crud.config.JsonHelper;
-import br.com.mateus.crud.endpoint.dto.ReviewDTO;
-import br.com.mateus.crud.endpoint.exception.DatabaseException;
-import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
-import br.com.mateus.crud.endpoint.service.ReviewService;
+import java.net.URI;
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +13,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.net.URI;
-import java.util.Arrays;
+import br.com.mateus.crud.config.JsonHelper;
+import br.com.mateus.crud.endpoint.dto.ReviewDTO;
+import br.com.mateus.crud.endpoint.exception.DatabaseException;
+import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.service.ReviewService;
 
 @WebMvcTest(controllers = ReviewController.class)
 class ReviewControllerTest {
@@ -75,7 +76,6 @@ class ReviewControllerTest {
     @Test
     void deleteShouldReturnNoContent() throws Exception {
         URI uri = new URI("/reviews/1");
-        ReviewDTO reviewDTO = new ReviewDTO(5L, null, null, "teste", Short.valueOf("5"));
         Mockito.doNothing().when(reviewService).deleteReview(Mockito.any());
 
         mockMvc
