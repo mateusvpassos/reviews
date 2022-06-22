@@ -11,7 +11,7 @@ import com.google.common.base.MoreObjects;
 import br.com.mateus.crud.endpoint.domain.Role;
 import br.com.mateus.crud.endpoint.domain.User;
 
-public class UserDTO implements Serializable {
+public class UserSaveUpdateDTO implements Serializable {
 
     @NotBlank(message = "Name is required")
     private String name;
@@ -20,27 +20,32 @@ public class UserDTO implements Serializable {
     @NotBlank(message = "Email is required")
     private String email;
 
+    @NotBlank(message = "Password is required")
+    private String password;
+
     @NotBlank(message = "Role is required")
     private Role role;
 
     @NotNull(message = "Active is required")
     private boolean active;
 
-    public UserDTO(String name, String email, Role role, boolean active) {
+    public UserSaveUpdateDTO(String name, String email, Role role, boolean active, String password) {
         this.name = name;
         this.email = email;
         this.role = role;
         this.active = active;
+        this.password = password;
     }
 
-    public UserDTO(User user) {
+    public UserSaveUpdateDTO(User user) {
         this.name = user.getName();
         this.email = user.getEmail();
         this.role = user.getRole();
         this.active = user.isActive();
+        this.password = user.getPassword();
     }
 
-    public UserDTO() {
+    public UserSaveUpdateDTO() {
     }
 
     public String getName() {
@@ -57,6 +62,14 @@ public class UserDTO implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Role getRole() {
@@ -83,6 +96,10 @@ public class UserDTO implements Serializable {
                 .add("role", role)
                 .add("active", active)
                 .toString();
+    }
+
+    public User toUserEntity() {
+        return new User(name, email, password, role, active);
     }
 
 }

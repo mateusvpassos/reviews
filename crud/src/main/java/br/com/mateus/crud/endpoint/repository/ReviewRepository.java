@@ -8,4 +8,6 @@ import br.com.mateus.crud.endpoint.domain.Review;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
+    boolean existsByUserEmailAndSubjectTitle(String email, String title);
+
 }

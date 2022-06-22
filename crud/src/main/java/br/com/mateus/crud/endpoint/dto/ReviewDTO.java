@@ -1,49 +1,85 @@
 package br.com.mateus.crud.endpoint.dto;
 
-import br.com.mateus.crud.endpoint.domain.Review;
-import br.com.mateus.crud.endpoint.domain.Subject;
-import br.com.mateus.crud.endpoint.domain.User;
-
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
-public class ReviewDTO implements Serializable {
-    @NotBlank
-    private Long id;
-    private User user;
-    private Subject subject;
-    @NotBlank
-    private String description;
-    @NotBlank
-    private Short rate;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-    public ReviewDTO(Long id, User user, Subject subject, String description, Short rate){
-        this.id = id;
-        this.user = user;
-        this.subject = subject;
+import com.google.common.base.MoreObjects;
+
+import br.com.mateus.crud.endpoint.domain.Review;
+
+public class ReviewDTO implements Serializable {
+
+    @NotBlank(message = "User Email is required")
+    @Email(message = "User Email is invalid")
+    private String userEmail;
+
+    @NotBlank(message = "Subject Title is required")
+    private String subjectTitle;
+
+    @NotBlank(message = "Description is required")
+    private String description;
+
+    @NotNull(message = "Rate is required")
+    private short rate;
+
+    public ReviewDTO(String userEmail, String subjectTitle, String description, Short rate) {
+        this.userEmail = userEmail;
+        this.subjectTitle = subjectTitle;
         this.description = description;
         this.rate = rate;
     }
-    public ReviewDTO(Review review){
-        this.id = review.getId();
-        this.user = review.getUser();
-        this.subject = review.getSubject();
+
+    public ReviewDTO(Review review) {
+        this.userEmail = review.getUser().getEmail();
+        this.subjectTitle = review.getSubject().getTitle();
         this.description = review.getDescription();
         this.rate = review.getRate();
     }
 
-    public Long getId() { return id; }
-    public User getUser() { return user; }
-    public Subject getSubject() { return subject; }
+    public ReviewDTO() {
+    }
+
+    public String getSubjectTitle() {
+        return subjectTitle;
+    }
+
+    public void setSubjectTitle(String subjectTitle) {
+        this.subjectTitle = subjectTitle;
+    }
+
     public String getDescription() {
         return description;
     }
-    public Short getRate() {
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public short getRate() {
         return rate;
     }
-    public void setDescription(String description) { this.description = description; }
-    public void setId(Long id) { this.id = id; }
-    public void setRate(Short rate) { this.rate = rate; }
-    public void setSubject(Subject subject) { this.subject = subject; }
-    public void setUser(User user) { this.user = user; }
+
+    public void setRate(short rate) {
+        this.rate = rate;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("userEmail", userEmail)
+                .add("subjectTitle", subjectTitle)
+                .add("description", description)
+                .add("rate", rate).toString();
+    }
 }

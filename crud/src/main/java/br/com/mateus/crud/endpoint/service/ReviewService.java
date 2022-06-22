@@ -14,8 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.mateus.crud.endpoint.domain.Review;
 import br.com.mateus.crud.endpoint.dto.ReviewDTO;
-import br.com.mateus.crud.endpoint.exception.DatabaseException;
-import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.exception.exists.ReviewAlreadyExistsException;
+import br.com.mateus.crud.endpoint.exception.notFound.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.exception.notFound.ReviewNotFoundException;
 import br.com.mateus.crud.endpoint.repository.ReviewRepository;
 
 @Service
@@ -25,9 +26,9 @@ public class ReviewService {
     ReviewRepository reviewRepository;
 
     @Transactional(readOnly = true)
-    public ReviewDTO findReview(Long id) {
+    public ReviewDTO findReview(String email, String subjectTitle) {
+
         Optional<Review> optional = reviewRepository.findById(id);
-        Review review = optional.orElseThrow(() -> new ResourceNotFoundException("Entity Not Found!"));
         return new ReviewDTO(review);
     }
 
@@ -76,6 +77,18 @@ public class ReviewService {
         review.setSubject(dto.getSubject());
         review.setUser(dto.getUser());
         return review;
+    }
+
+    private void verifyIfAlreadyExistsByUserEmailAndSubjectTitle(String email, String title) {
+        if (reviewRepository.existsByUserEmailAndSubjectTitle(email, title)) {
+            throw new ReviewAlreadyExistsException("Review already exists!");
+        }
+    }
+
+    private void verifyIfNotFoundByUserEmailAndSubjectTitle(String email, String title) {
+        if (!reviewRepository.existsByUserEmailAndSubjectTitle(email, title)) {
+            throw new ReviewNotFoundException("Review not found!");
+        }
     }
 
 }

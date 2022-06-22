@@ -1,12 +1,8 @@
 package br.com.mateus.crud.endpoint.service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.mateus.crud.endpoint.domain.User;
 import br.com.mateus.crud.endpoint.dto.UserDTO;
-import br.com.mateus.crud.endpoint.exception.DatabaseException;
-import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
+import br.com.mateus.crud.endpoint.dto.UserSaveUpdateDTO;
+import br.com.mateus.crud.endpoint.exception.exists.UserAlreadyExistsException;
+import br.com.mateus.crud.endpoint.exception.notFound.UserNotFoundException;
 import br.com.mateus.crud.endpoint.repository.UserRepository;
+import br.com.mateus.crud.endpoint.util.StringValidator;
 
 @Service
 public class UserService {
@@ -28,58 +26,57 @@ public class UserService {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional(readOnly = true)
-    public UserDTO findUser(String id) {
-        Optional<User> optional = userRepository.findById(id);
-        User user = optional.orElseThrow(() -> new ResourceNotFoundException("Entity Not Found!"));
-        return new UserDTO(user);
-    }
+    public UserDTO findUserByEmailIgnoreCase(String email) {
+        StringValidator.validateIfStringIsNullOrEmpty(email, "User Email");
+        verifyIfNotFoundByEmail(email);
 
-    @Transactional(readOnly = true)
-    public List<UserDTO> findAll() {
-        List<User> list = userRepository.findAll();
-        return list.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+        return new UserDTO(user.get());
     }
 
     @Transactional(readOnly = true)
     public Page<UserDTO> findAllPaged(PageRequest pageRequest) {
         Page<User> list = userRepository.findAll(pageRequest);
-        return list.map(x -> new UserDTO(x));
+        return list.map(user -> new UserDTO(user));
     }
 
-    @Transactional
-    public String saveUser(UserDTO userDto) {
-        User user = new User();
-        user = copyDtoToEntity(userDto, user);
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        user = userRepository.save(user);
-        return user.getId();
+    public UserDTO saveUser(UserSaveUpdateDTO userDto) {
+        verifyIfAlreadyExistsByEmail(userDto.getEmail());
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        return new UserDTO(userRepository.save(userDto.toUserEntity()));
     }
 
-    @Transactional
-    public UserDTO mergeUser(UserDTO userDto) {
-        User user = new User();
-        user = copyDtoToEntity(userDto, user);
-        user = userRepository.save(user);
-        return new UserDTO(user);
+    public UserDTO mergeUser(UserSaveUpdateDTO userDto) {
+        verifyIfNotFoundByEmail(userDto.getEmail());
+        return new UserDTO(userRepository.save(userDto.toUserEntity()));
     }
 
-    @Transactional
-    public void deleteUser(String id) {
-        try {
-            userRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException("ID Not Found: " + id);
-        } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Integrity Violation");
+    public void deactivateUser(String email) {
+        verifyIfNotFoundByEmail(email);
+
+        User user = userRepository.findByEmailIgnoreCase(email).get();
+        user.deactivate();
+        userRepository.save(user);
+    }
+
+    public void activateUser(String email) {
+        verifyIfNotFoundByEmail(email);
+
+        User user = userRepository.findByEmailIgnoreCase(email).get();
+        user.activate();
+        userRepository.save(user);
+    }
+
+    private void verifyIfAlreadyExistsByEmail(String email) {
+        if (userRepository.existsByEmailIgnoreCase(email)) {
+            throw new UserAlreadyExistsException("User already exists!");
         }
-
     }
 
-    private User copyDtoToEntity(UserDTO dto, User user) {
-        user.setId(dto.getId());
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        return user;
+    private void verifyIfNotFoundByEmail(String email) {
+        if (!userRepository.existsByEmailIgnoreCase(email)) {
+            throw new UserNotFoundException("User not found!");
+        }
     }
 
 }
