@@ -26,57 +26,57 @@ public class UserService {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional(readOnly = true)
-    public UserDTO findUserByEmailIgnoreCase(String email) {
+    public UserDTO findUserByEmail(final String email) {
         StringValidator.validateIfStringIsNullOrEmpty(email, "User Email");
-        verifyIfNotFoundByEmail(email);
 
-        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
-        return new UserDTO(user.get());
+        final Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+        if (user.isPresent()) {
+            return new UserDTO(user.get());
+        }
+        throw new UserNotFoundException("User not found with email: " + email);
     }
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> findAllPaged(PageRequest pageRequest) {
-        Page<User> list = userRepository.findAll(pageRequest);
-        return list.map(user -> new UserDTO(user));
+    public Page<UserDTO> findAllPaged(final PageRequest pageRequest) {
+        Page<User> users = userRepository.findAll(pageRequest);
+        return users.map(UserDTO::new);
     }
 
-    public UserDTO saveUser(UserSaveUpdateDTO userDto) {
-        verifyIfAlreadyExistsByEmail(userDto.getEmail());
+    public UserDTO saveUser(final UserSaveUpdateDTO userDto) {
+        Optional<User> user = userRepository.findByEmailIgnoreCase(userDto.getEmail());
+        if (user.isPresent()) {
+            throw new UserAlreadyExistsException("User already exists with email: " + userDto.getEmail());
+        }
         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        return new UserDTO(userRepository.save(userDto.toUserEntity()));
+        final User userSaved = userRepository.save(userDto.toUserEntity());
+        return new UserDTO(userSaved);
     }
 
-    public UserDTO mergeUser(UserSaveUpdateDTO userDto) {
-        verifyIfNotFoundByEmail(userDto.getEmail());
-        return new UserDTO(userRepository.save(userDto.toUserEntity()));
-    }
-
-    public void deactivateUser(String email) {
-        verifyIfNotFoundByEmail(email);
-
-        User user = userRepository.findByEmailIgnoreCase(email).get();
-        user.deactivate();
-        userRepository.save(user);
-    }
-
-    public void activateUser(String email) {
-        verifyIfNotFoundByEmail(email);
-
-        User user = userRepository.findByEmailIgnoreCase(email).get();
-        user.activate();
-        userRepository.save(user);
-    }
-
-    private void verifyIfAlreadyExistsByEmail(String email) {
-        if (userRepository.existsByEmailIgnoreCase(email)) {
-            throw new UserAlreadyExistsException("User already exists!");
+    public UserDTO mergeUser(final UserSaveUpdateDTO userDto) {
+        Optional<User> user = userRepository.findByEmailIgnoreCase(userDto.getEmail());
+        if (user.isPresent()) {
+            return new UserDTO(userRepository.save(userDto.toUserEntity()));
         }
+        throw new UserNotFoundException("User not found with email: " + userDto.getEmail());
     }
 
-    private void verifyIfNotFoundByEmail(String email) {
-        if (!userRepository.existsByEmailIgnoreCase(email)) {
-            throw new UserNotFoundException("User not found!");
+    public UserDTO deactivateUser(final String email) {
+        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+        if (user.isPresent()) {
+            user.get().deactivate();
+            userRepository.save(user.get());
+            return new UserDTO(user.get());
         }
+        throw new UserNotFoundException("User not found with email: " + email);
     }
 
+    public UserDTO activateUser(final String email) {
+        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+        if (user.isPresent()) {
+            user.get().activate();
+            userRepository.save(user.get());
+            return new UserDTO(user.get());
+        }
+        throw new UserNotFoundException("User not found with email: " + email);
+    }
 }

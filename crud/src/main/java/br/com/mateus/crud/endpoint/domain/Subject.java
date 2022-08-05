@@ -12,6 +12,8 @@ import javax.persistence.Table;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
+import br.com.mateus.crud.endpoint.util.GenerateSourceId;
+
 @Entity
 @Table(name = "subject")
 public class Subject implements Serializable {
@@ -21,6 +23,9 @@ public class Subject implements Serializable {
     @Column(name = "id", unique = true, updatable = false, nullable = false)
     private long id;
 
+    @Column(name = "source_id", unique = true, updatable = false, nullable = false)
+    private String sourceId;
+
     @Column(nullable = false, length = 100, unique = true, name = "title")
     private String title;
 
@@ -28,12 +33,14 @@ public class Subject implements Serializable {
     private String description;
 
     public Subject(String title, String description) {
+        this.sourceId = GenerateSourceId.generateSourceId();
         this.title = title;
         this.description = description;
     }
 
     public Subject(Builder builder) {
         this.id = builder.id;
+        this.sourceId = builder.sourceId;
         this.title = builder.title;
         this.description = builder.description;
     }
@@ -43,6 +50,7 @@ public class Subject implements Serializable {
 
     public static class Builder {
         private long id;
+        private String sourceId;
         private String title;
         private String description;
 
@@ -62,12 +70,17 @@ public class Subject implements Serializable {
         }
 
         public Subject build() {
+            this.sourceId = GenerateSourceId.generateSourceId();
             return new Subject(this);
         }
     }
 
     public long getId() {
         return id;
+    }
+
+    public String getSourceId() {
+        return sourceId;
     }
 
     public String getTitle() {
@@ -82,6 +95,7 @@ public class Subject implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
+                .add("sourceId", sourceId)
                 .add("title", title)
                 .add("description", description)
                 .toString();
@@ -89,7 +103,7 @@ public class Subject implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, title, description);
+        return Objects.hashCode(id, sourceId, title, description);
     }
 
     @Override
@@ -103,6 +117,7 @@ public class Subject implements Serializable {
         Subject other = (Subject) obj;
 
         return Objects.equal(id, other.id)
+                && Objects.equal(sourceId, other.sourceId)
                 && Objects.equal(title, other.title)
                 && Objects.equal(description, other.description);
     }

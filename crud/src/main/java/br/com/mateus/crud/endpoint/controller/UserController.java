@@ -1,6 +1,7 @@
 package br.com.mateus.crud.endpoint.controller;
 
 import br.com.mateus.crud.endpoint.dto.UserDTO;
+import br.com.mateus.crud.endpoint.dto.UserSaveUpdateDTO;
 import br.com.mateus.crud.endpoint.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,38 +21,44 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<Page<UserDTO>> findAll(@RequestParam(value = "page", defaultValue = "0") Integer page,
-                                                 @RequestParam(value = "size", defaultValue = "12") Integer size,
-                                                 @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-                                                 @RequestParam(value = "sort", defaultValue = "id") String sort) {
+    public ResponseEntity<Page<UserDTO>> findAll(@RequestParam(value = "page", defaultValue = "0") final Integer page,
+            @RequestParam(value = "size", defaultValue = "12") final Integer size,
+            @RequestParam(value = "direction", defaultValue = "ASC") final String direction,
+            @RequestParam(value = "sort", defaultValue = "id") final String sort) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.valueOf(direction), sort);
         Page<UserDTO> list = userService.findAllPaged(pageRequest);
         return ResponseEntity.ok().body(list);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> findOne(@PathVariable String id) {
-        return ResponseEntity.ok().body(userService.findUser(id));
+    @GetMapping("/{email}")
+    public ResponseEntity<UserDTO> findOne(@PathVariable final String email) {
+        return ResponseEntity.ok().body(userService.findUserByEmail(email));
     }
 
     @PostMapping
-    public ResponseEntity<String> insert(@RequestBody UserDTO userDto) {
-        String id = userService.saveUser(userDto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri();
-        return ResponseEntity.created(uri).body(id);
+    public ResponseEntity<UserDTO> insert(@RequestBody final UserSaveUpdateDTO userDto) {
+        UserDTO user = userService.saveUser(userDto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{email}").buildAndExpand(user).toUri();
+        return ResponseEntity.created(uri).body(user);
     }
 
-    @PutMapping()
-    public ResponseEntity<UserDTO> update(@RequestBody UserDTO userDto) {
-        UserDTO newDto = userService.mergeUser(userDto);
-        return ResponseEntity.ok().body(newDto);
+    @PutMapping
+    public ResponseEntity<UserDTO> update(@RequestBody final UserSaveUpdateDTO userDto) {
+        UserDTO user = userService.mergeUser(userDto);
+        return ResponseEntity.ok().body(user);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{email}")
+    public ResponseEntity<UserDTO> deactivate(@PathVariable final String email) {
+        UserDTO user = userService.deactivateUser(email);
+        return ResponseEntity.ok().body(user);
+    }
+
+    @PutMapping("/{email}")
+    public ResponseEntity<UserDTO> activate(@PathVariable final String email) {
+        UserDTO user = userService.activateUser(email);
+        return ResponseEntity.ok().body(user);
     }
 
 }

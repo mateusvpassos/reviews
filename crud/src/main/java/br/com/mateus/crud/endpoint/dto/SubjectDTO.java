@@ -57,6 +57,9 @@ public class SubjectDTO implements Serializable {
     }
 
     public Subject toSubjectEntity() {
-        return new Subject(title, description);
+        return new Subject.Builder()
+                .title(title)
+                .description(description)
+                .build();
     }
 }

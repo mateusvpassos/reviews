@@ -10,11 +10,12 @@ import br.com.mateus.crud.endpoint.domain.Subject;
 
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
+
+    Optional<Subject> findBySourceIdIgnoreCase(String sourceId);
+
     Optional<List<Subject>> findByTitleIgnoreCaseContaining(String title);
 
     Optional<Subject> findByTitleIgnoreCase(String title);
 
     Optional<List<Subject>> findByDescriptionIgnoreCaseContaining(String description);
-
-    boolean existsByTitleIgnoreCase(String title);
 }

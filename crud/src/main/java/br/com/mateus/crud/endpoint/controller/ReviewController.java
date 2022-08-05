@@ -29,38 +29,38 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @GetMapping
-    public ResponseEntity<Page<ReviewDTO>> findAll(@RequestParam(value = "page", defaultValue = "0") Integer page,
-                                                 @RequestParam(value = "size", defaultValue = "12") Integer size,
-                                                 @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-                                                 @RequestParam(value = "sort", defaultValue = "id") String sort) {
+    public ResponseEntity<Page<ReviewDTO>> findAll(@RequestParam(value = "page", defaultValue = "0") final Integer page,
+            @RequestParam(value = "size", defaultValue = "12") final Integer size,
+            @RequestParam(value = "direction", defaultValue = "ASC") final String direction,
+            @RequestParam(value = "sort", defaultValue = "id") final String sort) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.valueOf(direction), sort);
         Page<ReviewDTO> list = reviewService.findAllPaged(pageRequest);
         return ResponseEntity.ok().body(list);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ReviewDTO> findOne(@PathVariable Long id) {
-        return ResponseEntity.ok().body(reviewService.findReview(id));
+    @GetMapping("/{sourceId}")
+    public ResponseEntity<ReviewDTO> findBySourceId(@PathVariable final String sourceId) {
+        return ResponseEntity.ok().body(reviewService.findReviewBySourceId(sourceId));
     }
 
     @PostMapping
-    public ResponseEntity<Long> insert(@RequestBody ReviewDTO reviewDto) {
-        Long id = reviewService.saveReview(reviewDto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri();
-        return ResponseEntity.created(uri).body(id);
+    public ResponseEntity<ReviewDTO> insert(@RequestBody final ReviewDTO reviewDto) {
+        ReviewDTO review = reviewService.saveReview(reviewDto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(review).toUri();
+        return ResponseEntity.created(uri).body(review);
     }
 
-    @PutMapping()
-    public ResponseEntity<ReviewDTO> update(@RequestBody ReviewDTO reviewDto) {
-        ReviewDTO newDto = reviewService.mergeReview(reviewDto);
-        return ResponseEntity.ok().body(newDto);
+    @PutMapping
+    public ResponseEntity<ReviewDTO> update(@RequestBody final ReviewDTO reviewDto) {
+        ReviewDTO review = reviewService.mergeReview(reviewDto);
+        return ResponseEntity.ok().body(review);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        reviewService.deleteReview(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{sourceId}")
+    public ResponseEntity<ReviewDTO> delete(@PathVariable final String sourceId) {
+        ReviewDTO review = reviewService.deleteReview(sourceId);
+        return ResponseEntity.ok().body(review);
     }
 
 }

@@ -1,49 +1,37 @@
 package br.com.mateus.crud.endpoint.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import br.com.mateus.crud.endpoint.domain.User;
-import br.com.mateus.crud.endpoint.exception.DatabaseException;
-import br.com.mateus.crud.endpoint.repository.UserRepository;
-import br.com.mateus.crud.endpoint.exception.ResourceNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import br.com.mateus.crud.endpoint.dto.UserDTO;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.List;
-import java.util.Optional;
+import br.com.mateus.crud.endpoint.domain.Role;
+import br.com.mateus.crud.endpoint.domain.User;
+import br.com.mateus.crud.endpoint.dto.UserDTO;
+import br.com.mateus.crud.endpoint.dto.UserSaveUpdateDTO;
+import br.com.mateus.crud.endpoint.exception.exists.UserAlreadyExistsException;
+import br.com.mateus.crud.endpoint.exception.notFound.UserNotFoundException;
+import br.com.mateus.crud.endpoint.repository.UserRepository;
 
 @ExtendWith(SpringExtension.class)
 public class UserServiceTest {
-    private String existingId;
-    private String nonExistingId;
+
+    private final static String EXISTING_EMAIL = "email@test.com";
+    private final static String NON_EXISTING_EMAIL = "inexistent@test.com";
+    private final static String UPDATED_NAME = "Mockito2";
+
     private User user = createObject();
     private User userUpdate = createObjectUpdate();
-
-    @BeforeEach
-    void setUp() {
-        existingId = "00000000000";
-        nonExistingId = "154156745134";
-
-        Mockito.when(userRepository.save(ArgumentMatchers.any())).thenReturn(user);
-        Mockito.when(userRepository.findById(existingId)).thenReturn(Optional.of(createObject()));
-        Mockito.when(userRepository.findById(nonExistingId)).thenReturn(Optional.empty());
-        Mockito.when(userRepository.findAll()).thenReturn(List.of(createObject()));
-        Mockito.when(userRepository.findAll(PageRequest.of(1, 1))).thenReturn(Page.empty());
-    }
 
     @Mock
     private UserRepository userRepository;
@@ -51,69 +39,116 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    public void createShouldCreateData(){
-        UserDTO userDto = new UserDTO(user);
-        String id = userService.saveUser(userDto);
-
-        assertThat(id).isNotNull();
-    }
-
-    @Test
-    public void deleteShouldRemoveData(){
-        Mockito.doNothing().when(userRepository).deleteById(existingId);
-        userService.deleteUser(existingId);
-    }
-
-    @Test
-    public void deleteShouldThrowEmptyResultDataAccessException(){
-        EmptyResultDataAccessException exc = new EmptyResultDataAccessException("ID Not Found: " + nonExistingId, 1);
-        Mockito.doThrow(exc).when(userRepository).deleteById(nonExistingId);
-        Exception exception = assertThrows(
-                ResourceNotFoundException.class,
-                () -> userService.deleteUser(nonExistingId));
-        assertEquals(exception.getMessage(), "ID Not Found: " + nonExistingId);
-    }
-
-    @Test
-    public void deleteShouldThrowDatabaseException(){
-        DataIntegrityViolationException exc = new DataIntegrityViolationException("Integrity Violation");
-        Mockito.doThrow(exc).when(userRepository).deleteById(existingId);
-        Exception exception = assertThrows(
-                DatabaseException.class,
-                () -> userService.deleteUser(existingId));
-        assertEquals(exception.getMessage(), "Integrity Violation");
-    }
-
-    @Test
-    public void findAllShouldListAll(){
-        List<UserDTO> users = userService.findAll();
-        assertThat(users.size()).isEqualTo(1);
-    }
-
-    @Test
-    public void findAllPagedShouldListAll(){
+    public void findAllPagedShouldListAll() {
+        Mockito.when(userRepository.findAll(ArgumentMatchers.any(PageRequest.class)))
+                .thenReturn(Page.empty());
         Page<UserDTO> users = userService.findAllPaged(PageRequest.of(1, 1));
-        assertThat(users.getTotalElements()).isEqualTo(0);
+        assertThat(users.getTotalElements()).isZero();
     }
 
     @Test
-    public void updateShouldChangeAndPersistData(){
-        Mockito.when(userRepository.save(ArgumentMatchers.any())).thenReturn(userUpdate);
-        Mockito.when(userRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(createObjectUpdate()));
-
-        UserDTO userDTO = new UserDTO(createObjectUpdate());
-
-        String id = userService.saveUser(userDTO);
-        userDTO.setName("MockitoTestTwo");
-        userDTO.setEmail("update@testone.com");
-        userService.mergeUser(userDTO);
-
-        UserDTO result = userService.findUser(id);
-
-        assertThat(result.getName()).isEqualTo("MockitoTestTwo");
-        assertThat(result.getEmail()).isEqualTo("update@testone.com");
+    public void findUserByEmailShouldReturnUser() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(EXISTING_EMAIL))
+                .thenReturn(Optional.of(user));
+        UserDTO userDTO = userService.findUserByEmail(EXISTING_EMAIL);
+        assertThat(userDTO.getEmail()).isEqualTo(EXISTING_EMAIL);
     }
 
-    private User createObject(){ return new User("12345678901", "MockitoTestOne", "test@testone.com", "pass");}
-    private User createObjectUpdate(){ return new User("12345678901", "MockitoTestTwo", "update@testone.com", "pass");}
+    @Test
+    public void findUserByEmailShouldThrowUserNotFoundException() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(NON_EXISTING_EMAIL))
+                .thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.findUserByEmail(NON_EXISTING_EMAIL));
+    }
+
+    @Test
+    public void createShouldReturnUserDto() {
+        Mockito.when(userRepository.save(ArgumentMatchers.any(User.class)))
+                .thenReturn(user);
+        UserSaveUpdateDTO userDto = new UserSaveUpdateDTO(user);
+        UserDTO user = userService.saveUser(userDto);
+        assertThat(user.getEmail()).isEqualTo(EXISTING_EMAIL);
+    }
+
+    @Test
+    public void createShouldThrowUserAlreadyExistsException() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(EXISTING_EMAIL))
+                .thenReturn(Optional.of(user));
+        UserSaveUpdateDTO userDto = new UserSaveUpdateDTO(user);
+        assertThrows(UserAlreadyExistsException.class, () -> userService.saveUser(userDto));
+    }
+
+    @Test
+    public void deactivateShouldReturnUserDeactivated() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(EXISTING_EMAIL))
+                .thenReturn(Optional.of(user));
+        Mockito.doNothing().when(userRepository).delete(ArgumentMatchers.any(User.class));
+        UserDTO userDto = userService.deactivateUser(user.getEmail());
+        assertThat(userDto.isActive()).isFalse();
+    }
+
+    @Test
+    public void deactivateShouldThrowUserNotFoundException() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(NON_EXISTING_EMAIL))
+                .thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.deactivateUser(NON_EXISTING_EMAIL));
+    }
+
+    @Test
+    public void updateShouldReturnUserDto() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(EXISTING_EMAIL))
+                .thenReturn(Optional.of(user));
+        Mockito.when(userRepository.save(ArgumentMatchers.any(User.class)))
+                .thenReturn(userUpdate);
+        UserSaveUpdateDTO userDto = new UserSaveUpdateDTO(userUpdate);
+        UserDTO user = userService.mergeUser(userDto);
+        assertThat(user.getName()).isEqualTo(UPDATED_NAME);
+    }
+
+    @Test
+    public void updateShouldThrowUserNotFoundException() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(NON_EXISTING_EMAIL))
+                .thenReturn(Optional.empty());
+        UserSaveUpdateDTO userDto = new UserSaveUpdateDTO(userUpdate);
+        assertThrows(UserNotFoundException.class, () -> userService.mergeUser(userDto));
+    }
+
+    @Test
+    public void activateShouldReturnUserActivated() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(EXISTING_EMAIL))
+                .thenReturn(Optional.of(user));
+        Mockito.when(userRepository.save(ArgumentMatchers.any(User.class)))
+                .thenReturn(user);
+        UserDTO userDto = userService.activateUser(user.getEmail());
+        assertThat(userDto.isActive()).isTrue();
+    }
+
+    @Test
+    public void activateShouldThrowUserNotFoundException() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(NON_EXISTING_EMAIL))
+                .thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.activateUser(NON_EXISTING_EMAIL));
+    }
+
+    private User createObject() {
+        return new User.Builder()
+                .id(1)
+                .name("Mockito")
+                .email(EXISTING_EMAIL)
+                .password("creat")
+                .role(Role.USER)
+                .active(true)
+                .build();
+    }
+
+    private User createObjectUpdate() {
+        return new User.Builder()
+                .id(1)
+                .name("Mockito2")
+                .email(EXISTING_EMAIL)
+                .password("update")
+                .role(Role.USER)
+                .active(true)
+                .build();
+    }
 }

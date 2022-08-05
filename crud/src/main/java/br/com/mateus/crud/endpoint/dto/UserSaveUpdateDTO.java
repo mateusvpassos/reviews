@@ -99,7 +99,13 @@ public class UserSaveUpdateDTO implements Serializable {
     }
 
     public User toUserEntity() {
-        return new User(name, email, password, role, active);
+        return new User.Builder()
+                .name(name)
+                .email(email)
+                .role(role)
+                .active(active)
+                .password(password)
+                .build();
     }
 
 }

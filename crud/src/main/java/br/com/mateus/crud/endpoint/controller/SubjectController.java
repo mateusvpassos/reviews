@@ -1,6 +1,7 @@
 package br.com.mateus.crud.endpoint.controller;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,38 +30,44 @@ public class SubjectController {
     private SubjectService subjectService;
 
     @GetMapping
-    public ResponseEntity<Page<SubjectDTO>> findAll(@RequestParam(value = "page", defaultValue = "0") Integer page,
-                                                 @RequestParam(value = "size", defaultValue = "12") Integer size,
-                                                 @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-                                                 @RequestParam(value = "sort", defaultValue = "id") String sort) {
+    public ResponseEntity<Page<SubjectDTO>> findAll(
+            @RequestParam(value = "page", defaultValue = "0") final Integer page,
+            @RequestParam(value = "size", defaultValue = "12") final Integer size,
+            @RequestParam(value = "direction", defaultValue = "ASC") final String direction,
+            @RequestParam(value = "sort", defaultValue = "id") final String sort) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.valueOf(direction), sort);
         Page<SubjectDTO> list = subjectService.findAllPaged(pageRequest);
         return ResponseEntity.ok().body(list);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<SubjectDTO> findOne(@PathVariable Long id) {
-        return ResponseEntity.ok().body(subjectService.findSubject(id));
+    @GetMapping("/{title}")
+    public ResponseEntity<List<SubjectDTO>> findByTitle(@PathVariable final String title) {
+        return ResponseEntity.ok().body(subjectService.findSubjectByTitleContaining(title));
+    }
+
+    @GetMapping("/{sourceId}")
+    public ResponseEntity<SubjectDTO> findBySourceId(@PathVariable final String sourceId) {
+        return ResponseEntity.ok().body(subjectService.findSubjectBySourceId(sourceId));
     }
 
     @PostMapping
-    public ResponseEntity<Long> insert(@RequestBody SubjectDTO subjectDto) {
-        Long id = subjectService.saveSubject(subjectDto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri();
-        return ResponseEntity.created(uri).body(id);
+    public ResponseEntity<SubjectDTO> insert(@RequestBody final SubjectDTO subjectDto) {
+        SubjectDTO subject = subjectService.saveSubject(subjectDto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(subject).toUri();
+        return ResponseEntity.created(uri).body(subject);
     }
 
-    @PutMapping()
-    public ResponseEntity<SubjectDTO> update(@RequestBody SubjectDTO subjectDto) {
-        SubjectDTO newDto = subjectService.mergeSubject(subjectDto);
-        return ResponseEntity.ok().body(newDto);
+    @PutMapping
+    public ResponseEntity<SubjectDTO> update(@RequestBody final SubjectDTO subjectDto) {
+        SubjectDTO subject = subjectService.mergeSubject(subjectDto);
+        return ResponseEntity.ok().body(subject);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        subjectService.deleteSubject(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{sourceId}")
+    public ResponseEntity<SubjectDTO> delete(@PathVariable final String sourceId) {
+        SubjectDTO subject = subjectService.deleteSubject(sourceId);
+        return ResponseEntity.ok().body(subject);
     }
 
 }

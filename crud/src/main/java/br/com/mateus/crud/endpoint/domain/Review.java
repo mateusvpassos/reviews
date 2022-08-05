@@ -14,6 +14,8 @@ import javax.persistence.Table;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
+import br.com.mateus.crud.endpoint.util.GenerateSourceId;
+
 @Entity
 @Table(name = "review")
 public class Review implements Serializable {
@@ -22,6 +24,9 @@ public class Review implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, unique = true, updatable = false)
     private long id;
+
+    @Column(name = "source_id", nullable = false, unique = true, updatable = false)
+    private String sourceId;
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false, name = "user_id")
@@ -37,12 +42,22 @@ public class Review implements Serializable {
     @Column(length = 1, nullable = false, name = "rate")
     private short rate;
 
+    public Review(User user, Subject subject, String description, short rate) {
+        this.user = user;
+        this.sourceId = GenerateSourceId.generateSourceId();
+        this.subject = subject;
+        this.description = description;
+        this.rate = rate;
+    }
+
     public Review(Builder builder) {
         this.id = builder.id;
+        this.sourceId = builder.sourceId;
         this.user = builder.user;
         this.subject = builder.subject;
         this.description = builder.description;
         this.rate = builder.rate;
+
     }
 
     public Review() {
@@ -50,6 +65,7 @@ public class Review implements Serializable {
 
     public static class Builder {
         private long id;
+        private String sourceId;
         private User user;
         private Subject subject;
         private String description;
@@ -81,12 +97,17 @@ public class Review implements Serializable {
         }
 
         public Review build() {
+            this.sourceId = GenerateSourceId.generateSourceId();
             return new Review(this);
         }
     }
 
     public long getId() {
         return id;
+    }
+
+    public String getSourceId() {
+        return sourceId;
     }
 
     public User getUser() {
@@ -109,6 +130,7 @@ public class Review implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
+                .add("sourceId", sourceId)
                 .add("user", user)
                 .add("subject", subject)
                 .add("description", description)
@@ -118,7 +140,7 @@ public class Review implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, user, subject, description, rate);
+        return Objects.hashCode(id, sourceId, user, subject, description, rate);
     }
 
     @Override
@@ -131,6 +153,7 @@ public class Review implements Serializable {
         }
         final Review other = (Review) obj;
         return Objects.equal(this.id, other.id)
+                && Objects.equal(this.sourceId, other.sourceId)
                 && Objects.equal(this.user, other.user)
                 && Objects.equal(this.subject, other.subject)
                 && Objects.equal(this.description, other.description)

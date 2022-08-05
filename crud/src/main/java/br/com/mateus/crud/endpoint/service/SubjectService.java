@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.mateus.crud.endpoint.domain.Review;
 import br.com.mateus.crud.endpoint.domain.Subject;
 import br.com.mateus.crud.endpoint.dto.SubjectDTO;
 import br.com.mateus.crud.endpoint.exception.exists.SubjectAlreadyExistsException;
@@ -27,57 +28,59 @@ public class SubjectService {
     private ReviewService reviewService;
 
     @Transactional(readOnly = true)
-    public SubjectDTO findSubjectByTitleIgnoreCase(String title) {
-        StringValidator.validateIfStringIsNullOrEmpty(title, "Subject Title");
-        verifyIfNotFoundByTitle(title);
-
-        Optional<Subject> subject = subjectRepository.findByTitleIgnoreCase(title);
-        return new SubjectDTO(subject.get());
-    }
-
-    @Transactional(readOnly = true)
-    public List<SubjectDTO> findSubjectByTitleIgnoreCaseContaining(String title) {
+    public List<SubjectDTO> findSubjectByTitleContaining(final String title) {
         StringValidator.validateIfStringIsNullOrEmpty(title, "Subject Title");
 
         Optional<List<Subject>> optional = subjectRepository.findByTitleIgnoreCaseContaining(title);
         List<Subject> subjects = optional.orElseThrow(() -> new SubjectNotFoundException("Subject not found!"));
 
-        return subjects.stream().map(subject -> new SubjectDTO(subject)).collect(Collectors.toList());
+        return subjects.stream().map(SubjectDTO::new).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<SubjectDTO> findAllPaged(PageRequest pageRequest) {
+    public SubjectDTO findSubjectBySourceId(final String sourceId) {
+        StringValidator.validateIfStringIsNullOrEmpty(sourceId, "Source Id");
+
+        Optional<Subject> optional = subjectRepository.findBySourceIdIgnoreCase(sourceId);
+        Subject subject = optional.orElseThrow(() -> new SubjectNotFoundException("Subject not found!"));
+
+        return new SubjectDTO(subject);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SubjectDTO> findAllPaged(final PageRequest pageRequest) {
         Page<Subject> subjects = subjectRepository.findAll(pageRequest);
-        return subjects.map(subject -> new SubjectDTO(subject));
+        return subjects.map(SubjectDTO::new);
     }
 
-    public SubjectDTO saveSubject(SubjectDTO subjectDto) {
-        verifyIfAlreadyExistsByTitle(subjectDto.getTitle());
+    public SubjectDTO saveSubject(final SubjectDTO subjectDto) {
+        Optional<Subject> subject = subjectRepository.findByTitleIgnoreCase(subjectDto.getTitle());
+        if (subject.isPresent()) {
+            throw new SubjectAlreadyExistsException("Subject already exists with title: " + subjectDto.getTitle());
+        }
         return new SubjectDTO(subjectRepository.save(subjectDto.toSubjectEntity()));
     }
 
-    public SubjectDTO mergeSubject(SubjectDTO subjectDto) {
-        verifyIfNotFoundByTitle(subjectDto.getTitle());
-        return new SubjectDTO(subjectRepository.save(subjectDto.toSubjectEntity()));
-    }
-
-    public SubjectDTO deleteSubject(String title) {
-        verifyIfNotFoundByTitle(title);
-
-        Optional<Subject> subject = subjectRepository.findByTitleIgnoreCase(title);
-        subjectRepository.deleteById(subject.get().getId());
-        return new SubjectDTO(subject.get());
-    }
-
-    private void verifyIfAlreadyExistsByTitle(String title) {
-        if (subjectRepository.existsByTitleIgnoreCase(title)) {
-            throw new SubjectAlreadyExistsException("Subject already exists!");
+    public SubjectDTO mergeSubject(final SubjectDTO subjectDto) {
+        Optional<Subject> subject = subjectRepository.findByTitleIgnoreCase(subjectDto.getTitle());
+        if (subject.isPresent()) {
+            return new SubjectDTO(subjectRepository.save(subjectDto.toSubjectEntity()));
         }
+        throw new SubjectNotFoundException("Subject not found with title: " + subjectDto.getTitle());
     }
 
-    private void verifyIfNotFoundByTitle(String title) {
-        if (!subjectRepository.existsByTitleIgnoreCase(title)) {
-            throw new SubjectNotFoundException("Subject not found!");
+    public SubjectDTO deleteSubject(final String sourceId) {
+        StringValidator.validateIfStringIsNullOrEmpty(sourceId, "Subject Source Id");
+        Optional<Subject> subject = subjectRepository.findBySourceIdIgnoreCase(sourceId);
+        if (subject.isPresent()) {
+            Optional<List<Review>> reviews = reviewService.findReviewBySubject(subject.get());
+            if (reviews.isPresent() && !reviews.get().isEmpty()) {
+                throw new IllegalStateException("Subject has reviews associated");
+            }
+
+            subjectRepository.delete(subject.get());
+            return new SubjectDTO(subject.get());
         }
+        throw new SubjectNotFoundException("Subject not found with source id: " + sourceId);
     }
 }
