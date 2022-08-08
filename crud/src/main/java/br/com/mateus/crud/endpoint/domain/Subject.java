@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
-import br.com.mateus.crud.endpoint.util.GenerateSourceId;
+import br.com.mateus.crud.endpoint.util.GenerateSourceIdUtil;
 
 @Entity
 @Table(name = "subject")
@@ -33,7 +33,7 @@ public class Subject implements Serializable {
     private String description;
 
     public Subject(String title, String description) {
-        this.sourceId = GenerateSourceId.generateSourceId();
+        this.sourceId = GenerateSourceIdUtil.generateSourceId();
         this.title = title;
         this.description = description;
     }
@@ -70,7 +70,7 @@ public class Subject implements Serializable {
         }
 
         public Subject build() {
-            this.sourceId = GenerateSourceId.generateSourceId();
+            this.sourceId = GenerateSourceIdUtil.generateSourceId();
             return new Subject(this);
         }
     }

@@ -2,7 +2,7 @@ package br.com.mateus.crud.endpoint.thread;
 
 import br.com.mateus.crud.endpoint.domain.User;
 
-public class UserThreadLocal {
+public class UserThreadLocalUtil {
     private static ThreadLocal<User> userThread = new ThreadLocal<>();
 
     public static User getUser() {
@@ -10,7 +10,7 @@ public class UserThreadLocal {
     }
 
     public static void setUser(User user) {
-        UserThreadLocal.userThread.set(user);
+        UserThreadLocalUtil.userThread.set(user);
     }
 
     public static void removeUser() {

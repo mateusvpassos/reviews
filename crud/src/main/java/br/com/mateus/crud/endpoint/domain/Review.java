@@ -14,7 +14,7 @@ import javax.persistence.Table;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
-import br.com.mateus.crud.endpoint.util.GenerateSourceId;
+import br.com.mateus.crud.endpoint.util.GenerateSourceIdUtil;
 
 @Entity
 @Table(name = "review")
@@ -44,7 +44,7 @@ public class Review implements Serializable {
 
     public Review(User user, Subject subject, String description, short rate) {
         this.user = user;
-        this.sourceId = GenerateSourceId.generateSourceId();
+        this.sourceId = GenerateSourceIdUtil.generateSourceId();
         this.subject = subject;
         this.description = description;
         this.rate = rate;
@@ -97,7 +97,7 @@ public class Review implements Serializable {
         }
 
         public Review build() {
-            this.sourceId = GenerateSourceId.generateSourceId();
+            this.sourceId = GenerateSourceIdUtil.generateSourceId();
             return new Review(this);
         }
     }
