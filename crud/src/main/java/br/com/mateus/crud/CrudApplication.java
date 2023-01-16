@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "br.com.mateus.crud.*")
-@ServletComponentScan(basePackageClasses = { AuthenticationFilter.class })
+// @ServletComponentScan(basePackageClasses = { AuthenticationFilter.class })
 @OpenAPIDefinition(info = @Info(title = "Spring", version = "1.0", description = "Spring Study"))
 public class CrudApplication {
 

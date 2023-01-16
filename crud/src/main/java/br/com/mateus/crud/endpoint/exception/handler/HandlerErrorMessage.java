@@ -10,7 +10,8 @@ public class HandlerErrorMessage {
     private String message;
     private String description;
 
-    public HandlerErrorMessage(HttpStatus status, LocalDateTime date, String message, String description) {
+    public HandlerErrorMessage(final HttpStatus status, final LocalDateTime date, final String message,
+            final String description) {
         this.status = status;
         this.date = date;
         this.message = message;
@@ -33,19 +34,19 @@ public class HandlerErrorMessage {
         return message;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(final LocalDateTime date) {
         this.date = date;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(final String message) {
         this.message = message;
     }
 
-    public void setStatus(HttpStatus status) {
+    public void setStatus(final HttpStatus status) {
         this.status = status;
     }
 }

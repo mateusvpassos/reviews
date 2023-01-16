@@ -32,13 +32,13 @@ public class Subject implements Serializable {
     @Column(nullable = false, length = 255, name = "description")
     private String description;
 
-    public Subject(String title, String description) {
+    public Subject(final String title, final String description) {
         this.sourceId = GenerateSourceIdUtil.generateSourceId();
         this.title = title;
         this.description = description;
     }
 
-    public Subject(Builder builder) {
+    public Subject(final Builder builder) {
         this.id = builder.id;
         this.sourceId = builder.sourceId;
         this.title = builder.title;
@@ -54,17 +54,17 @@ public class Subject implements Serializable {
         private String title;
         private String description;
 
-        public Builder id(long id) {
+        public Builder id(final long id) {
             this.id = id;
             return this;
         }
 
-        public Builder title(String title) {
+        public Builder title(final String title) {
             this.title = title;
             return this;
         }
 
-        public Builder description(String description) {
+        public Builder description(final String description) {
             this.description = description;
             return this;
         }
@@ -107,7 +107,7 @@ public class Subject implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

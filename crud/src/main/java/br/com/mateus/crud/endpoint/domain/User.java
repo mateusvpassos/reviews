@@ -39,7 +39,7 @@ public class User implements Serializable {
     @Column(nullable = false, name = "active")
     private boolean active;
 
-    public User(String name, String email, String password, Role role, boolean active) {
+    public User(final String name, final String email, final String password, final Role role, final boolean active) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -47,7 +47,7 @@ public class User implements Serializable {
         this.active = active;
     }
 
-    public User(Builder builder) {
+    public User(final Builder builder) {
         this.id = builder.id;
         this.name = builder.name;
         this.email = builder.email;
@@ -67,32 +67,32 @@ public class User implements Serializable {
         private Role role;
         private boolean active;
 
-        public Builder id(long id) {
+        public Builder id(final long id) {
             this.id = id;
             return this;
         }
 
-        public Builder name(String name) {
+        public Builder name(final String name) {
             this.name = name;
             return this;
         }
 
-        public Builder email(String email) {
+        public Builder email(final String email) {
             this.email = email;
             return this;
         }
 
-        public Builder password(String password) {
+        public Builder password(final String password) {
             this.password = password;
             return this;
         }
 
-        public Builder role(Role role) {
+        public Builder role(final Role role) {
             this.role = role;
             return this;
         }
 
-        public Builder active(boolean active) {
+        public Builder active(final boolean active) {
             this.active = active;
             return this;
         }
@@ -152,7 +152,7 @@ public class User implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

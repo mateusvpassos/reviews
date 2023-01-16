@@ -9,7 +9,7 @@ public class UserThreadLocalUtil {
         return userThread.get();
     }
 
-    public static void setUser(User user) {
+    public static void setUser(final User user) {
         UserThreadLocalUtil.userThread.set(user);
     }
 

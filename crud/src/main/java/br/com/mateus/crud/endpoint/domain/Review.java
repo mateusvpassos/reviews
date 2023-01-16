@@ -42,7 +42,7 @@ public class Review implements Serializable {
     @Column(length = 1, nullable = false, name = "rate")
     private short rate;
 
-    public Review(User user, Subject subject, String description, short rate) {
+    public Review(final User user, final Subject subject, final String description, final short rate) {
         this.user = user;
         this.sourceId = GenerateSourceIdUtil.generateSourceId();
         this.subject = subject;
@@ -50,7 +50,7 @@ public class Review implements Serializable {
         this.rate = rate;
     }
 
-    public Review(Builder builder) {
+    public Review(final Builder builder) {
         this.id = builder.id;
         this.sourceId = builder.sourceId;
         this.user = builder.user;
@@ -71,27 +71,27 @@ public class Review implements Serializable {
         private String description;
         private short rate;
 
-        public Builder id(long id) {
+        public Builder id(final long id) {
             this.id = id;
             return this;
         }
 
-        public Builder user(User user) {
+        public Builder user(final User user) {
             this.user = user;
             return this;
         }
 
-        public Builder subject(Subject subject) {
+        public Builder subject(final Subject subject) {
             this.subject = subject;
             return this;
         }
 
-        public Builder description(String description) {
+        public Builder description(final String description) {
             this.description = description;
             return this;
         }
 
-        public Builder rate(short rate) {
+        public Builder rate(final short rate) {
             this.rate = rate;
             return this;
         }
@@ -144,7 +144,7 @@ public class Review implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (obj == null) {
             return false;
         }

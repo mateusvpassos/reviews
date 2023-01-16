@@ -22,12 +22,12 @@ public class SubjectDTO implements Serializable {
     public SubjectDTO() {
     }
 
-    public SubjectDTO(String title, String description) {
+    public SubjectDTO(final String title, final String description) {
         this.title = title;
         this.description = description;
     }
 
-    public SubjectDTO(Subject subject) {
+    public SubjectDTO(final Subject subject) {
         this.title = subject.getTitle();
         this.description = subject.getDescription();
     }
@@ -40,11 +40,11 @@ public class SubjectDTO implements Serializable {
         return title;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 

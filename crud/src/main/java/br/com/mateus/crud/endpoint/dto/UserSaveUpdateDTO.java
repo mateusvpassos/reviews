@@ -29,7 +29,8 @@ public class UserSaveUpdateDTO implements Serializable {
     @NotNull(message = "Active is required")
     private boolean active;
 
-    public UserSaveUpdateDTO(String name, String email, Role role, boolean active, String password) {
+    public UserSaveUpdateDTO(final String name, final String email, final Role role, final boolean active,
+            final String password) {
         this.name = name;
         this.email = email;
         this.role = role;
@@ -37,7 +38,7 @@ public class UserSaveUpdateDTO implements Serializable {
         this.password = password;
     }
 
-    public UserSaveUpdateDTO(User user) {
+    public UserSaveUpdateDTO(final User user) {
         this.name = user.getName();
         this.email = user.getEmail();
         this.role = user.getRole();
@@ -52,7 +53,7 @@ public class UserSaveUpdateDTO implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -60,7 +61,7 @@ public class UserSaveUpdateDTO implements Serializable {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(final String email) {
         this.email = email;
     }
 
@@ -68,7 +69,7 @@ public class UserSaveUpdateDTO implements Serializable {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
@@ -76,7 +77,7 @@ public class UserSaveUpdateDTO implements Serializable {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(final Role role) {
         this.role = role;
     }
 
@@ -84,7 +85,7 @@ public class UserSaveUpdateDTO implements Serializable {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(final boolean active) {
         this.active = active;
     }
 

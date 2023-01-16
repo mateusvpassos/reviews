@@ -11,7 +11,7 @@ import br.com.mateus.crud.endpoint.domain.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<List<User>> findByNameIgnoreCaseContaining(String name);
+    Optional<List<User>> findByNameIgnoreCaseContaining(final String name);
 
-    Optional<User> findByEmailIgnoreCase(String email);
+    Optional<User> findByEmailIgnoreCase(final String email);
 }

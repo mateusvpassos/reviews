@@ -18,12 +18,12 @@ public class UserUpdatePasswordDTO implements Serializable {
     @NotBlank(message = "Password is required")
     private String password;
 
-    public UserUpdatePasswordDTO(String email, String password) {
+    public UserUpdatePasswordDTO(final String email, final String password) {
         this.email = email;
         this.password = password;
     }
 
-    public UserUpdatePasswordDTO(User user) {
+    public UserUpdatePasswordDTO(final User user) {
         this.email = user.getEmail();
         this.password = user.getPassword();
     }
@@ -35,7 +35,7 @@ public class UserUpdatePasswordDTO implements Serializable {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(final String email) {
         this.email = email;
     }
 
@@ -43,7 +43,7 @@ public class UserUpdatePasswordDTO implements Serializable {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 

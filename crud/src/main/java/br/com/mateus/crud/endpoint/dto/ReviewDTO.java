@@ -25,14 +25,14 @@ public class ReviewDTO implements Serializable {
     @NotNull(message = "Rate is required")
     private short rate;
 
-    public ReviewDTO(String userEmail, String subjectTitle, String description, Short rate) {
+    public ReviewDTO(final String userEmail, final String subjectTitle, final String description, final short rate) {
         this.userEmail = userEmail;
         this.subjectTitle = subjectTitle;
         this.description = description;
         this.rate = rate;
     }
 
-    public ReviewDTO(Review review) {
+    public ReviewDTO(final Review review) {
         this.userEmail = review.getUser().getEmail();
         this.subjectTitle = review.getSubject().getTitle();
         this.description = review.getDescription();
@@ -46,7 +46,7 @@ public class ReviewDTO implements Serializable {
         return subjectTitle;
     }
 
-    public void setSubjectTitle(String subjectTitle) {
+    public void setSubjectTitle(final String subjectTitle) {
         this.subjectTitle = subjectTitle;
     }
 
@@ -54,7 +54,7 @@ public class ReviewDTO implements Serializable {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -70,7 +70,7 @@ public class ReviewDTO implements Serializable {
         return userEmail;
     }
 
-    public void setUserEmail(String userEmail) {
+    public void setUserEmail(final String userEmail) {
         this.userEmail = userEmail;
     }
 
